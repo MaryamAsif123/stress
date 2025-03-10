@@ -7,7 +7,7 @@ app = Flask(__name__)
 SERVER = 'stresswebapp-server.database.windows.net'
 DATABASE = 'stresswebapp-database'
 USERNAME = 'stresswebapp-server-admin'
-PASSWORD = 'your-password'
+PASSWORD = 'NewSecurePassword123!'
 DRIVER = '{ODBC Driver 17 for SQL Server}'
 
 # Function to create a connection
