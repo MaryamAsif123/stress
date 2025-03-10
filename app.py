@@ -3,23 +3,37 @@ import pyodbc
 
 app = Flask(__name__)
 
-# Azure SQL Database Connection Details
-SERVER = 'stresswebapp-server.database.windows.net'
-DATABASE = 'stresswebapp-database'
-USERNAME = 'stresswebapp-server-admin'
-PASSWORD = 'NewSecurePassword123!'
+# Azure SQL Database Connection Details (Update Password)
+SERVER = 'testingserverstress.database.windows.net'
+DATABASE = 'testingdb'
+USERNAME = 'testingadmin'
+PASSWORD = 'abcd@1234'  
 DRIVER = '{ODBC Driver 17 for SQL Server}'
 
 # Function to create a connection
 def get_db_connection():
-    conn = pyodbc.connect(
-        f'DRIVER={DRIVER};SERVER={SERVER};PORT=1433;DATABASE={DATABASE};UID={USERNAME};PWD={PASSWORD};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30'
-    )
-    return conn
+    try:
+        conn = pyodbc.connect(
+            f'DRIVER={DRIVER};'
+            f'SERVER=tcp:{SERVER},1433;'
+            f'DATABASE={DATABASE};'
+            f'UID={USERNAME};'
+            f'PWD={PASSWORD};'
+            'Encrypt=yes;'
+            'TrustServerCertificate=no;'
+            'Connection Timeout=30;'
+        )
+        return conn
+    except Exception as e:
+        print(f"Database connection failed: {e}")
+        return None
 
 @app.route('/users', methods=['GET'])
 def get_users():
     conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "Database connection failed"}), 500
+
     cursor = conn.cursor()
     cursor.execute("SELECT id, name, email, created_at FROM Users")
     users = cursor.fetchall()
@@ -34,6 +48,9 @@ def get_users():
 @app.route('/user/<int:user_id>', methods=['GET'])
 def get_user_by_id(user_id):
     conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "Database connection failed"}), 500
+
     cursor = conn.cursor()
     cursor.execute("SELECT id, name, email, created_at FROM Users WHERE id = ?", (user_id,))
     user = cursor.fetchone()
@@ -55,6 +72,9 @@ def create_user():
         return jsonify({"error": "Name and email are required"}), 400
     
     conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "Database connection failed"}), 500
+
     cursor = conn.cursor()
     cursor.execute("INSERT INTO Users (name, email) VALUES (?, ?)", (name, email))
     conn.commit()
@@ -71,6 +91,9 @@ def update_user(user_id):
         return jsonify({"error": "Email is required"}), 400
     
     conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "Database connection failed"}), 500
+
     cursor = conn.cursor()
     cursor.execute("UPDATE Users SET email = ? WHERE id = ?", (new_email, user_id))
     conn.commit()
@@ -81,6 +104,9 @@ def update_user(user_id):
 @app.route('/user/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "Database connection failed"}), 500
+
     cursor = conn.cursor()
     cursor.execute("DELETE FROM Users WHERE id = ?", (user_id,))
     conn.commit()
