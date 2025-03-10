@@ -4,16 +4,16 @@ import pyodbc
 app = Flask(__name__)
 
 # Azure SQL Database Connection Details
-SERVER = 'stresswebapp-server'
+SERVER = 'stresswebapp-server.database.windows.net'
 DATABASE = 'stresswebapp-database'
-USERNAME = '20011598-141@uog.edu.pk'
-PASSWORD = 'asd.230'
+USERNAME = 'stresswebapp-server-admin'
+PASSWORD = 'your-password'
 DRIVER = '{ODBC Driver 17 for SQL Server}'
 
 # Function to create a connection
 def get_db_connection():
     conn = pyodbc.connect(
-        f'DRIVER={DRIVER};SERVER={SERVER};PORT=1433;DATABASE={DATABASE};UID={USERNAME};PWD={PASSWORD}'
+        f'DRIVER={DRIVER};SERVER={SERVER};PORT=1433;DATABASE={DATABASE};UID={USERNAME};PWD={PASSWORD};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30'
     )
     return conn
 
